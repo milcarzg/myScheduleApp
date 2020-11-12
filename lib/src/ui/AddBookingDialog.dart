@@ -171,7 +171,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
               Text('Departure Date', textAlign: TextAlign.end,),
               Padding(
                 padding: EdgeInsets.only(left: 16.0, right: 16.0),
-              child:
+                child:
                 DateTimePicker(
                   type: DateTimePickerType.dateTimeSeparate,
                   dateMask: 'd MMM, yyyy',
