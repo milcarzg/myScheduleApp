@@ -1,9 +1,11 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:myScheduleApp/src/models/BookingItem.dart';
 import 'package:myScheduleApp/src/models/BookingList.dart';
 import 'package:myScheduleApp/src/ui/AddBookingDialog.dart';
-import 'package:myScheduleApp/src/ui/DetailScreen.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -15,18 +17,23 @@ class HomePage extends StatefulWidget {
 class _MyHomePageState extends State<HomePage> {
   final BookingList list = new BookingList();
   final LocalStorage storage = new LocalStorage('booking_app');
+  List<String> status =  ['Ready for Pick-up', 'in Transit', 'Out for Delivery', 'Delivered'];
   bool initialized = false;
   TextEditingController controller = new TextEditingController();
 
-  _addBooking(String departureTime, String timeZone, String originCountryCode, String arrivalCountryCode) {
+  _addBooking(String departureTime, String timeZone, String timeZoneArrival, String originCountryCode,
+      String arrivalCountryCode, String size, String weight,String unit) {
     setState(() {
-      final booking = new BookingItem(departureTime: departureTime, timeZone: timeZone,
-          originCountryCode: originCountryCode, arrivalCountryCode: arrivalCountryCode);
+      final booking = new BookingItem(departureTime: departureTime, timeZoneOrigin: timeZone,
+          timeZoneArrival: timeZoneArrival,
+          originCountryCode: originCountryCode, arrivalCountryCode: arrivalCountryCode,
+      size: size, weight: weight, unit:  unit);
       list.items.add(booking);
       _saveToStorage();
     });
   }
 
+  //TODO: move all storage calls to separate class
   _saveToStorage() {
     storage.setItem('bookings', list.toJSONEncodable());
   }
@@ -64,10 +71,14 @@ class _MyHomePageState extends State<HomePage> {
                   list.items = List<BookingItem>.from(
                     (items as List).map(
                           (item) => BookingItem(
-                        departureTime: item['departureTime'],
-                        timeZone: item['timeZone'],
-                        originCountryCode: item['originCountryCode'],
-                        arrivalCountryCode: item['arrivalCountryCode'],
+                            departureTime: item['departureTime'],
+                            timeZoneOrigin: item['timeZoneOrigin'],
+                            timeZoneArrival: item['timeZoneArrival'],
+                            originCountryCode: item['originCountryCode'],
+                            arrivalCountryCode: item['arrivalCountryCode'],
+                            size: item['size'],
+                            weight: item['weight'],
+                            unit: item['unit'],
                       ),
                     ),
                   );
@@ -77,22 +88,46 @@ class _MyHomePageState extends State<HomePage> {
               }
 
               List<Widget> widgets = list.items.map((item) {
-                return ListTile(
-                  title: Row(
+                return Card(
+                  child: ListTile(
+                    title: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Expanded(flex: 1 ,child: Text(item.originCountryCode)),
-                        Expanded(flex: 2 ,child: Text(item.departureTime)),
-                        Expanded(flex: 1 ,child: Text(item.arrivalCountryCode)),
+                        Row(
+                          children: <Widget> [
+                            Expanded(flex: 2 , child:
+                              Column(children: <Widget> [
+                                Text(item.originCountryCode),
+                                Text(item.toGMT(item.departureTime, item.timeZoneOrigin)),
+                              ]),
+                            ),
+                            Expanded(flex: 2 , child:
+                              Column(children: <Widget> [
+                                Text(item.arrivalCountryCode),
+                                // no specification about delivery time so its just +30 days from departure
+                                Text(item.toGMT((DateTime.now().add(new Duration(days: 30))).toString(), item.timeZoneArrival)),
+                              ]),
+                            ),
+                          ]
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget> [
+                            Text('Status : ' + status[new Random().nextInt(status.length)],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget> [
+                            Expanded(child:
+                              Text('Size : ' + item.size, textAlign: TextAlign.center), ),
+                            Expanded(child:
+                              Text('Weight : ' + item.weight + ' ' + item.unit, textAlign: TextAlign.center),),
+                          ],
+                        ),
                       ]
+                    ),
                   ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailScreen(shipment: item),
-                      ),
-                    );
-                  },
                 );
               }).toList();
 
@@ -102,9 +137,8 @@ class _MyHomePageState extends State<HomePage> {
                     onTap: null,
                     title: Row(
                         children: <Widget>[
-                          Expanded(flex: 1 ,child: Text("From")),
-                          Expanded(flex: 2 ,child: Text("Departure")),
-                          Expanded(flex: 1 ,child: Text("To")),
+                          Expanded(flex: 2 ,child: Text("From", textAlign: TextAlign.center,)),
+                          Expanded(flex: 2 ,child: Text("To", textAlign: TextAlign.center,)),
                         ]
                     ),
                   ),
@@ -112,7 +146,6 @@ class _MyHomePageState extends State<HomePage> {
                     flex: 1,
                     child: ListView(
                       children: widgets,
-                      itemExtent: 50.0,
                     ),
                   ),
                   ListTile(
@@ -136,7 +169,9 @@ class _MyHomePageState extends State<HomePage> {
     );
   }
   void _saveBooking(BookingItem booking) {
-    _addBooking(booking.departureTime,booking.timeZone,booking.originCountryCode, booking.arrivalCountryCode);
+    _addBooking(booking.departureTime,booking.timeZoneOrigin, booking.timeZoneArrival,
+        booking.originCountryCode, booking.arrivalCountryCode, booking.size,
+    booking.weight, booking.unit);
     controller.clear();
   }
 
