@@ -4,6 +4,7 @@ import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myScheduleApp/src/models/BookingItem.dart';
+import 'package:myScheduleApp/src/resources/strings.dart';
 
 class AddBookingDialog extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class AddBookingDialog extends StatefulWidget {
 }
 
 class AddBookingDialogState extends State<AddBookingDialog> {
+  // temporary values just to make app work - in normal app there would be a nice alert dialog and null checks on each value
   String tempDeparture = DateFormat('yyyy-MM-dd kk:mm').format(DateTime.now());
   String tempTimezoneOrigin = 'UTC-04:00';
   String tempTimezoneArrival = 'UTC-05:00';
@@ -41,7 +43,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: const Text('New booking'),
+        title: Text(Strings.newBookinTitleTxt),
         actions: [
           new FlatButton(
               onPressed: () {
@@ -55,7 +57,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                     size: size,
                     weight: weight));
               },
-              child: new Text('SAVE',
+              child: new Text(Strings.saveButtonTxt,
                   style: Theme.of(context)
                       .textTheme
                       .subhead
@@ -76,7 +78,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      initialValue: 'Enter weight',
+                      initialValue: Strings.enterWeightTxt,
                       onChanged: (text) {
                         weight = text;
                       },
@@ -93,7 +95,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                       child: ButtonBar(
                         alignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text('kg'),
+                          Text(Strings.kgTxt),
                           Radio(
                             value: 1,
                             groupValue: selectedUnit,
@@ -102,7 +104,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                               setSelectedUnit(val);
                             },
                           ),
-                          Text('oz'),
+                          Text(Strings.ozTxt),
                           Radio(
                             value: 2,
                             groupValue: selectedUnit,
@@ -124,7 +126,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                       child: ButtonBar(
                         alignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text('20'),
+                          Text(Strings.smallUnitTxt),
                           Radio(
                             value: 1,
                             groupValue: selectedSize,
@@ -133,7 +135,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                               setSelectedSize(val);
                             },
                           ),
-                          Text('40'),
+                          Text(Strings.bigUnitTxt),
                           Radio(
                             value: 2,
                             groupValue: selectedSize,
@@ -149,10 +151,10 @@ class AddBookingDialogState extends State<AddBookingDialog> {
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    Text('Departure Country'),
+                    Text(Strings.departureCountryTxt),
                     CountryListPick(
                       appBar: AppBar(
-                        title: Text('Choose Departure country'),
+                        title: Text(Strings.chooseDepartureCountryTxt),
                       ),
                       theme: CountryTheme(
                         isShowFlag: true,
@@ -168,7 +170,7 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                       },
                     ),
                   ]),
-              Text('Departure Date', textAlign: TextAlign.end,),
+              Text(Strings.departureDateTxt, textAlign: TextAlign.end,),
               Padding(
                 padding: EdgeInsets.only(left: 16.0, right: 16.0),
                 child:
@@ -181,8 +183,8 @@ class AddBookingDialogState extends State<AddBookingDialog> {
                   lastDate: DateTime(2100),
                   autovalidate: true,
                   icon: Icon(Icons.event),
-                  dateLabelText: 'Date',
-                  timeLabelText: "Hour",
+                  dateLabelText: Strings.dateTxt,
+                  timeLabelText: Strings.hourTxt,
                   onChanged: (val) {
                     tempDeparture = val;
                   },
