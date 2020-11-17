@@ -2,6 +2,12 @@
 
 A new Flutter project.
 
+##Screens
+![Alt text](Screenshot_20201112_214642.png?raw=true "Home")
+
+![Alt text](Screenshot_20201112_215437.png?raw=true "New Booking")
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
